@@ -1,6 +1,6 @@
 # Machine Learning and Deep Learning Repository
 
-Welcome to the Machine Learning and Deep Learning Repository! This repository serves as a valuable resource for exploring various aspects of machine learning (ML), deep learning (DL), data cleaning, and natural language processing (NLP) through Jupyter Notebook. Dive into the world of data analysis, model building, and NLP tasks with our collection of notebooks.
+This repository serves as a valuable resource for exploring various aspects of machine learning (ML), deep learning (DL), data cleaning, and natural language processing (NLP) through Jupyter Notebook. Dive into the world of data analysis, model building, and NLP tasks with our collection of notebooks.
 
 ## Repository Structure
 
