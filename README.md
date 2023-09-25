@@ -6,6 +6,10 @@ This repository serves as a valuable resource for exploring various aspects of m
 
 The repository is organized into the following main categories:
 
+0. **Data Cleaning**
+   - Data sets from different sources
+   - Text & Images
+
 1. **Data Cleaning**
    - This section contains Jupyter Notebooks dedicated to data cleaning and preprocessing tasks.
    - Explore and apply techniques to prepare your data for analysis and modeling.
@@ -22,3 +26,10 @@ The repository is organized into the following main categories:
    - In this section, you'll find notebooks related to NLP tasks.
    - Work with text data, perform sentiment analysis, text classification, and more.
 
+5. **Projects**
+   - Some projects from _kaggle_
+   - Applying different data preprocess techniques and ML/DL algorithms
+
+6. **Submissions**
+   - Predictions of test results
+   - Formed in CSV files mostly
