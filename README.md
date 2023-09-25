@@ -6,7 +6,7 @@ This repository serves as a valuable resource for exploring various aspects of m
 
 The repository is organized into the following main categories:
 
-0. **Data Cleaning**
+0. **Data**
    - Data sets from different sources
    - Text & Images
 
