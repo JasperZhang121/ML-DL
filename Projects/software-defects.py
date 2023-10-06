@@ -34,7 +34,7 @@ def convert_column_type(dataset, column, dtype):
     return dataset
 
 
-def truncate(dataset, lower_quantile=0.0001, upper_quantile=0.9999):
+def truncate(dataset, lower_quantile=0.00001, upper_quantile=0.99999):
     """Remove outliers from the dataset."""
     print(f"\nTruncating dataset between quantiles [{lower_quantile}, {upper_quantile}]...")
     lower_bound = dataset.quantile(lower_quantile)
@@ -100,7 +100,7 @@ def build_enhanced_model(input_dim):
         Dropout(0.25),
 
         # Fourth dense layer with 32 neurons and L1 and L2 regularization
-        Dense(32, kernel_regularizer=l1_l2(l1=0.01, l2=0.01)),
+        Dense(64, kernel_regularizer=l1_l2(l1=0.01, l2=0.01)),
         BatchNormalization(),
         Activation('relu'),
 
@@ -111,7 +111,7 @@ def build_enhanced_model(input_dim):
     return model
 
 
-def get_train_val_split(dataset, target_col, test_size=0.2, random_state=42):
+def get_train_val_split(dataset, target_col, test_size=0.1, random_state=42):
     """Splits the dataset into training and validation sets."""
     X = dataset.drop(target_col, axis=1)
     y = dataset[target_col]
