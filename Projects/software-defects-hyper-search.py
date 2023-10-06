@@ -3,6 +3,8 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
+from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import ParameterGrid
 import tensorflow as tf
 from tensorflow.keras.models import Sequential, load_model, save_model
 from tensorflow.keras.layers import Dense, Dropout, BatchNormalization, Activation
@@ -84,20 +86,20 @@ def preprocess_data(dataset, target_col=None, is_train=True):
     return dataset if is_train else (dataset, ids)
 
 
-def build_enhanced_model(input_dim):
+def build_enhanced_model(input_dim, dropout_rate=0.25):  # Default value set to 0.25
     """Build and return a modified neural network model."""
     model = Sequential([
         # First dense layer with 256 neurons and L1 and L2 regularization
         Dense(256, input_dim=input_dim, kernel_regularizer=l1_l2(l1=0.01, l2=0.01)),
         BatchNormalization(),
         Activation('relu'),
-        Dropout(0.25),
+        Dropout(dropout_rate),  # Use the passed dropout_rate
         
         # Second dense layer with 64 neurons and L1 and L2 regularization
         Dense(128, kernel_regularizer=l1_l2(l1=0.01, l2=0.01)),
         BatchNormalization(),
         Activation('relu'),
-        Dropout(0.25),
+        Dropout(dropout_rate),  # Use the passed dropout_rate
 
         # Fourth dense layer with 32 neurons and L1 and L2 regularization
         Dense(64, kernel_regularizer=l1_l2(l1=0.01, l2=0.01)),
@@ -133,24 +135,46 @@ def main():
         test_dataset, test_ids = preprocess_data(test_dataset, is_train=False)
     X_test = test_dataset.drop('defects', axis=1, errors='ignore')
 
-    # Model Building
-    model = build_enhanced_model(X_train.shape[1])
-    callbacks = [
-        EarlyStopping(monitor='val_loss', patience=25, restore_best_weights=True),
-        ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=5, verbose=1)
-    ]
-    model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=200, batch_size=32, callbacks=callbacks)
+    # Hyperparameter grid
+    param_grid = {
+        'learning_rate': [0.001, 0.01],
+        'dropout_rate': [0.25, 0.5],
+        'num_layers': [2, 3],
+        'units_per_layer': [64, 128]
+    }
+    grid = ParameterGrid(param_grid)
 
-    # Evaluation
-    val_loss, val_accuracy = model.evaluate(X_val, y_val)
-    print(f"Validation Loss: {val_loss:.4f}\nValidation Accuracy: {val_accuracy:.4f}")
+    best_score = 0
+    best_params = None
+    best_model = None
 
-    # Save & Predict
-    model.save('trained_model_software-defects.h5')
-    y_pred = model.predict(X_test)
+    # Loop over hyperparameters and train and validate for each combination
+    for params in grid:
+        print(f"Evaluating combination: {params}")
+        model = build_enhanced_model(X_train.shape[1], dropout_rate=params.get('dropout_rate', 0.25))  # using default value if not in params
+        model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=params.get('learning_rate', 0.001)), 
+                      loss='binary_crossentropy', metrics=['accuracy'])
+        
+        model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=200, batch_size=32, verbose=1)
+
+        # Evaluation
+        _, val_accuracy = model.evaluate(X_val, y_val, verbose=0)
+        print(f"Validation Accuracy for this combination: {val_accuracy:.4f}")
+        print("----------")
+
+        if val_accuracy > best_score:
+            best_score = val_accuracy
+            best_params = params
+            best_model = model
+
+    print(f"Best Hyperparameters: {best_params}")
+
+    # Predict using the best model & Save
+    y_pred = best_model.predict(X_test)
     predictions_df = pd.DataFrame({'id': test_ids, 'prediction': y_pred.squeeze()})
     predictions_df.to_csv(os.path.join("..", "Data", "SoftwareDefects", "predictions.csv"), index=False)
-
+    best_model.save('trained_model_software-defects.h5')
 
 if __name__ == "__main__":
     main()
+
