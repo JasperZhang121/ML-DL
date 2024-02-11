@@ -13,11 +13,11 @@ import numpy as np
 
 #----------------------------Data Preparation-------------------------#
 # Load the dataset
-df = pd.read_csv('data/DMSC.csv')
+df = pd.read_csv('data/DMSC.csv') # use the file from kaggle link "https://www.kaggle.com/datasets/utmhikari/doubanmovieshortcomments"
 # Randomly sample 10,000 rows from the dataset
 df = df.sample(n=10000, random_state=42)
 
-# Map star ratings to sentiment labels (0=negative, 1=positive, 2=neutral)
+# Map star ratings to sentiment labels (0=negative, 1=positive, 2=neutral)g
 def label_sentiment(row):
     if row['Star'] >= 4:
         return 1
